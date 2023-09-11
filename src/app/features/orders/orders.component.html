@@ -1,0 +1,30 @@
+<div>
+  <h3>Orders</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Status</th>
+        <th scope="col">Total Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of ordersList.orders">
+        <th scope="row">{{ order.orderId }}</th>
+        <td>{{ order.name }}</td>
+        <td>{{ order.price }}</td>
+        <td>{{ order.quantity }}</td>
+
+        <td>{{ ordersList.status }}</td>
+        <td>{{ ordersList.totalPrice }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Total Price: {{ ordersList.totalPrice }}</p>
+  <button type="button" class="btn btn-primary" (click)="makeOrder()">
+    Confirm Order
+  </button>
+</div>
