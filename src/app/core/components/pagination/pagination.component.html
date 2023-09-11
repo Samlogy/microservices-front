@@ -1,0 +1,19 @@
+<nav aria-label="">
+  <ul class="pagination">
+    <li class="page-item disabled">
+      <button class="page-link" (click)="previousPage()">Previous</button>
+    </li>
+
+    <div *ngFor="let page of totalPages">
+      <li class="page-item active">
+        <button class="page-link" (click)="changePage(page)">
+          {{ page }}
+        </button>
+      </li>
+    </div>
+
+    <li class="page-item">
+      <button class="page-link" (click)="nextPage()">Next</button>
+    </li>
+  </ul>
+</nav>
