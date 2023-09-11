@@ -1,0 +1,12 @@
+<div>
+  <h3>Products</h3>
+  <app-filter></app-filter>
+
+  <div class="container row g-3 align-items-center">
+    <div *ngFor="let product of productsList">
+      <app-product-card [productData]="product"></app-product-card>
+    </div>
+  </div>
+
+  <app-pagination></app-pagination>
+</div>
