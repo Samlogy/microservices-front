@@ -1,0 +1,16 @@
+<a href="{{ '/product/' + productData.id }}">
+  <div class="card" style="width: 18rem">
+    <img src="{{ productData.image }}" class="card-img-top" alt="..." />
+    <div class="card-body">
+      <h5 class="card-title">{{ productData.name }}</h5>
+
+      <p class="card-text">
+        {{ productData.description }}
+      </p>
+      <p class="card-text">Quanitty: {{ productData.quantity }}</p>
+      <p class="card-text">
+        {{ productData.price }}
+      </p>
+    </div>
+  </div>
+</a>

@@ -1,0 +1,11 @@
+<div class="container row g-3 align-items-center">
+  <form [formGroup]="searchForm" (ngSubmit)="onFilter()">
+    <input
+      class="form-control"
+      type="text"
+      placeholder="search"
+      formControlName="searchBar"
+    />
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
