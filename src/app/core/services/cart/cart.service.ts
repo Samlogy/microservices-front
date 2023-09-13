@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { EventEmitter, Injectable } from '@angular/core';
-import cartType from '../../models/cart.model';
-import { productType } from '../../data-types';
+import { cartType } from '../../models/cart.model';
+import productType from '../../models/product.model';
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -37,8 +37,8 @@ export class CartService {
       this.cartData.emit(items);
     }
   }
-  addToCart(cartData: cartType) {
-    return this.http.post(BASE_URL + '/cart', cartData);
+  addToCart(product: productType) {
+    return this.http.post(BASE_URL + '/cart', product);
   }
   getCartList(userId: number) {
     return this.http
@@ -54,10 +54,14 @@ export class CartService {
   removeToCart(cartId: number) {
     return this.http.delete(BASE_URL + '/cart/' + cartId);
   }
+  removeFromCart(itemId: number) {}
   currentCart() {
-    let userStore = localStorage.getItem('user');
-    let user = userStore && JSON.parse(userStore);
-    return this.http.get<cartType>(BASE_URL + '/cart?userId=' + user.id);
+    // let userStore = localStorage.getItem('user');
+    // let user = userStore && JSON.parse(userStore);
+    // return this.http.get<cartType>(BASE_URL + '/cart?userId=' + user.id);
+    const cartStore = localStorage.getItem('cart');
+    if (!cartStore || !JSON.parse(cartStore)) return;
+    return JSON.parse(cartStore);
   }
   deleteCartItems(cartId: number) {
     return this.http

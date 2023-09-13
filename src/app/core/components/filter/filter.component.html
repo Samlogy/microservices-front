@@ -6,6 +6,27 @@
       placeholder="search"
       formControlName="searchBar"
     />
+    <select
+      class="form-select"
+      formControlName="category"
+      aria-label="Default select example"
+    >
+      <option [value]="category.value" *ngFor="let category of CATEGORIES">
+        {{ category.label }}
+      </option>
+    </select>
+    <input
+      class="form-control"
+      type="number"
+      placeholder="Price Min"
+      formControlName="priceMin"
+    />
+    <input
+      class="form-control"
+      type="number"
+      placeholder="Price Max"
+      formControlName="priceMax"
+    />
     <button type="submit" class="btn btn-primary">Search</button>
   </form>
 </div>

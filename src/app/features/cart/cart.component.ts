@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CartService } from 'src/app/core/services/cart/cart.service';
-import { priceSummaryType } from '../../core/data-types';
-import cartType from '../../core/models/cart.model';
+import { StorageService } from 'src/app/core/services/storage/storage.service';
+import { cartType, priceSummaryType } from '../../core/models/cart.model';
 
 @Component({
   selector: 'app-cart',
@@ -11,17 +10,8 @@ import cartType from '../../core/models/cart.model';
 })
 export class CartComponent implements OnInit {
   cartData: cartType = {
-    id: 1,
-    products: [
-      {
-        id: 1,
-        name: 'prod 1',
-        price: 10,
-        image: '',
-        description: 'desc',
-        quantity: 3,
-      },
-    ],
+    id: undefined,
+    products: [],
   };
   priceSummary: priceSummaryType = {
     price: 0,
@@ -31,39 +21,58 @@ export class CartComponent implements OnInit {
     total: 0,
   };
 
-  constructor(private router: Router, private cartService: CartService) {}
+  constructor(private router: Router, private storageService: StorageService) {}
 
   ngOnInit(): void {
-    this.loadDetails();
+    this.loadCart();
   }
 
-  removeToCart(cartId: number | undefined) {
-    if (!cartId || !this.cartData) return;
-    this.cartService.removeToCart(cartId).subscribe((result) => {
-      this.loadDetails();
+  loadCart() {
+    this.cartData = this.storageService.onGetItem('cart');
+    console.log('cartData: ', this.cartData);
+
+    let price = 0;
+    this.cartData.products.forEach((item: any) => {
+      if (item.quantity) {
+        price += item.price * item.quantity;
+      }
     });
-  }
+    // console.log('price: ', price);
 
-  loadDetails() {
-    this.cartService.currentCart().subscribe((result) => {
-      this.cartData = result;
-      let price = 0;
-      result.products.forEach((item: any) => {
-        if (item.quantity) {
-          price += item.price * item.quantity;
-        }
-      });
-      console.log('price: ', price);
-      this.priceSummary.price = price;
-      this.priceSummary.discount = price * 0.1;
-      this.priceSummary.tax = price * 0.1;
-      this.priceSummary.delivery = 100;
-      this.priceSummary.total = price + price * 0.1 + 100 - price * 0.1;
-      if (this.cartData.products?.length == 0) this.router.navigate(['/']);
+    const DISCOUNT = price * 0.1;
+    const DELIVERY = 100;
+    const TAX = price * 0.1;
+
+    this.priceSummary.price = price;
+    this.priceSummary.discount = DISCOUNT;
+    this.priceSummary.tax = TAX;
+    this.priceSummary.delivery = DELIVERY;
+    this.priceSummary.total = price > 0 ? price + DISCOUNT + DELIVERY + TAX : 0;
+
+    // console.log('priceSummary: ', this.priceSummary);
+  }
+  onDeleteItem(itemId: number) {
+    if (!itemId || !this.cartData) return;
+    const cartItemsUpdated = this.cartData.products.filter(
+      (item) => item.id !== itemId
+    );
+    this.storageService.onSaveItem('cart', {
+      id: this.cartData.id,
+      products: cartItemsUpdated,
     });
+    // console.log('afte delete: ', cartItemsUpdated);
+  }
+  onDeleteAllItems() {
+    if (!this.cartData) return;
+    this.storageService.onSaveItem('cart', {
+      id: undefined,
+      products: [],
+    });
+    console.log('delete all: ');
+    this.loadCart();
   }
 
-  checkout() {
-    this.router.navigate(['/checkout']);
+  onShipping() {
+    this.router.navigate(['/shipping']);
   }
 }

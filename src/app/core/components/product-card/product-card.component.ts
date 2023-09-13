@@ -14,5 +14,6 @@ export class ProductCardComponent {
     price: 0,
     quantity: 10,
     image: '',
+    category: '',
   };
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-pagination',
@@ -6,9 +6,26 @@ import { Component } from '@angular/core';
   styleUrls: ['./pagination.component.scss'],
 })
 export class PaginationComponent {
-  totalPages = [1, 2, 3, 4, 5, 6];
+  @Input() totalPages: number = 1;
+  @Input() currentPage: number = 1;
+  // @Output() changePage: EventEmitter<number> = new EventEmitter();
 
-  changePage(page: number) {}
-  previousPage() {}
-  nextPage() {}
+  onChangePage(page: number) {
+    this.currentPage = page;
+    // this.changePage.emit(page);
+  }
+  onPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      // this.changePage.emit(this.currentPage--);
+    }
+    console.log('CHILD page: ', this.currentPage);
+  }
+  onNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      // this.changePage.emit(this.currentPage++);
+    }
+    console.log('CHILD page: ', this.currentPage);
+  }
 }

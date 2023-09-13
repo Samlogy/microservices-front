@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ProductService } from '../../core/services/product/product.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { cartType } from 'src/app/core/models/cart.model';
 import productType from 'src/app/core/models/product.model';
-import cartType from 'src/app/core/models/cart.model';
 import { CartService } from 'src/app/core/services/cart/cart.service';
+import { ProductService } from '../../core/services/product/product.service';
+import { StorageService } from 'src/app/core/services/storage/storage.service';
 
 @Component({
   selector: 'app-product-details',
@@ -12,105 +13,107 @@ import { CartService } from 'src/app/core/services/cart/cart.service';
 })
 export class ProductDetailsComponent implements OnInit {
   productData: productType = {
-    name: 'Iphone 14 pro',
-    price: 100,
-    image: '',
-    description: 'string',
+    name: 'Iphone 14 Pro',
+    price: 1000,
+    image:
+      'https://imageio.forbes.com/specials-images/imageserve/641397e79f04500b85460b8f/Apple--iPhone-15--iPhone-15-Pro-Max--iPhone-15-Pro--iPhone-15-Pro-design--iPhone-15/0x0.jpg?format=jpg&crop=924,693,x359,y0,safe&width=960',
+    description: 'Iphone 14 pro available',
     id: 1,
-    quantity: 10,
+    quantity: 3,
+    category: 'IT',
   };
-  productQuantity: number = 1;
-  removeCart = true;
-  cartData: cartType[] | undefined;
+  productQuantity: number = 3;
+  cartData: cartType | undefined;
+  canRemovedFromCart = false;
+  itemQuantity = 1;
 
   constructor(
     private activeRoute: ActivatedRoute,
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private storageService: StorageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    let productId = this.activeRoute.snapshot.paramMap.get('id');
+    let productId = Number(this.activeRoute.snapshot.paramMap.get('id'));
     if (!productId) return;
-    // this.loadProductDetails(Number(productId));
-  }
-  handleQuantity(val: string) {
-    if (this.productQuantity < 20 && val === 'plus') {
-      this.productQuantity += 1;
-    } else if (this.productQuantity > 1 && val === 'min') {
-      this.productQuantity -= 1;
-    }
+    this.loadProductDetails(Number(productId));
+    this.itemIsPrensentCart();
   }
 
+  // to checkout if item present in cart
+  itemIsPrensentCart() {
+    let cartData = this.storageService.onGetItem('cart');
+    const isPresent = cartData.products.find(
+      (item: productType) => item.id === this.productData.id
+    );
+    this.canRemovedFromCart = isPresent;
+  }
   loadProductDetails(productId: number) {
-    // this.productService.getProductById(productId).subscribe((result) => {
-    //   this.productData = result;
-    //   let cartData = localStorage.getItem('localCart');
-    //   if (productId && cartData) {
-    //     let items = JSON.parse(cartData);
-    //     items = items.filter(
-    //       (item: productType) => productId === item.id
-    //     );
-    //     if (items.length) {
-    //       this.removeCart = true;
-    //     } else {
-    //       this.removeCart = false;
-    //     }
-    //   }
-    //   let user = localStorage.getItem('user');
-    //   if (user) {
-    //     let userId = user && JSON.parse(user).id;
-    //     this.cartService.getCartList(userId);
-    //     this.cartService.cartData.subscribe((result) => {
-    //       let item = result.filter(
-    //         (item: productType) =>
-    //           productId?.toString() === item.productId?.toString()
-    //       );
-    //       if (item.length) {
-    //         this.cartData = item[0];
-    //         this.removeCart = true;
-    //       }
-    //     });
-    //   }
-    // });
+    this.productService.getProductById(productId).subscribe((res) => {
+      this.productData = res;
+      this.productQuantity = res.quantity;
+    });
   }
   addToCart() {
-    // if (!this.productData) return;
-    // this.productData.quantity = this.productQuantity;
-    // if (!localStorage.getItem('user')) {
-    //   this.cartService.localAddToCart(this.productData);
-    //   this.removeCart = true;
-    //   return;
-    // }
-    // let user = localStorage.getItem('user');
-    // let userId = user && JSON.parse(user).id;
-    // let cartData: cartType = {
-    //   ...this.productData,
-    //   productId: this.productData.id,
-    //   userId,
-    // };
-    // delete cartData.id;
-    // this.cartService.addToCart(cartData).subscribe((result) => {
-    //   if (result) {
-    //     this.cartService.getCartList(userId);
-    //     this.removeCart = true;
-    //   }
-    // });
+    if (!this.productData) return;
+    let cartData = this.storageService.onGetItem('cart');
+    // increment quantity (item already exists)
+    let itemExists = false;
+    const updatedProducts = cartData.products.map((item: productType) => {
+      if (item.id === this.productData.id) {
+        itemExists = true;
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      }
+      return item;
+    });
+
+    // add new item to the cart
+    if (!itemExists) {
+      cartData = {
+        id: cartData.id,
+        products: [...cartData.products, this.productData],
+      };
+    } else {
+      cartData = {
+        id: cartData.id,
+        products: updatedProducts,
+      };
+    }
+
+    this.cartData = cartData;
+    this.storageService.onSaveItem('cart', cartData);
   }
-  removeToCart(productId: number) {
-    // if (!localStorage.getItem('user')) {
-    //   this.cartService.removeItemFromCart(productId);
-    //   this.removeCart = false;
-    //   return;
-    // }
-    // console.warn('cartData', this.cartData);
-    // if (this.cartData) {
-    //   this.cartService.removeToCart(this.cartData.id).subscribe((result) => {
-    //     let user = localStorage.getItem('user');
-    //     let userId = user && JSON.parse(user).id;
-    //     this.cartService.getCartList(userId);
-    //   });
-    // }
-    // this.removeCart = false;
+  removeFromCart(productId: number) {
+    if (!this.productData) return;
+    let cartData = this.storageService.onGetItem('cart');
+
+    const itemsUpdated = cartData.products.filter(
+      (item: productType) => item.id !== productId
+    );
+
+    const newCart = {
+      id: cartData.id,
+      products: itemsUpdated,
+    };
+
+    this.cartData = newCart;
+    this.storageService.onSaveItem('cart', newCart);
+  }
+  buyNow() {
+    this.addToCart();
+    this.router.navigate(['/cart']);
+  }
+
+  handleQuantity(val: string) {
+    if (this.itemQuantity < this.productData.quantity && val === 'plus') {
+      this.itemQuantity += 1;
+    } else if (this.itemQuantity > 1 && val === 'min') {
+      this.itemQuantity -= 1;
+    }
   }
 }

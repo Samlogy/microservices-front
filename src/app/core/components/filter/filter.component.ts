@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import productType from '../../models/product.model';
 import { ProductService } from '../../services/product/product.service';
 import {
@@ -8,17 +8,47 @@ import {
   Validators,
 } from '@angular/forms';
 
+type CategoryType = { label: string; value: string };
+
 @Component({
   selector: 'app-filter',
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss'],
 })
 export class FilterComponent {
-  searchResult: undefined | productType[];
+  @Output() searchResult: EventEmitter<productType[] | []> = new EventEmitter();
+
+  // searchResult: undefined | productType[];
+  CATEGORIES: CategoryType[] = [
+    {
+      label: 'Apple',
+      value: 'apple',
+    },
+    {
+      label: 'Samsung',
+      value: 'samsung',
+    },
+    {
+      label: 'oppo',
+      value: 'Oppo',
+    },
+    {
+      label: 'Huawei',
+      value: 'huawei',
+    },
+    {
+      label: 'Xiaomi',
+      value: 'xiaomi',
+    },
+  ];
 
   searchForm: FormGroup = new FormGroup({
     searchBar: new FormControl(''),
+    priceMin: new FormControl(''),
+    priceMax: new FormControl(''),
+    category: new FormControl(''),
   });
+
   constructor(
     private productService: ProductService,
     private fb: FormBuilder
@@ -26,24 +56,22 @@ export class FilterComponent {
 
   ngOnInit(): void {
     this.searchForm = this.fb.group({
-      searchBar: ['', Validators.required],
+      searchBar: [''],
+      priceMin: [''],
+      priceMax: [''],
+      category: [''],
     });
   }
 
   onFilter() {
-    if (this.searchForm.invalid) return;
+    const { searchBar, priceMin, priceMax, category } = this.searchForm.value;
 
-    console.log(JSON.stringify(this.searchForm.value, null, 2));
-  }
+    if (!searchBar && !priceMax && !priceMin && !category) return;
+    const query = `searchBar=${searchBar}&priceMin=${priceMin}&priceMax=${priceMax}&category=${category}`;
 
-  searchProduct(query: KeyboardEvent) {
-    if (!query) return;
-    const element = query.target as HTMLInputElement;
-    this.productService.searchProduct(element.value).subscribe((result) => {
-      if (result.length > 5) {
-        result.length = length;
-      }
-      this.searchResult = result;
+    this.productService.searchProduct(query).subscribe((res) => {
+      // this.searchResult = res;
+      this.searchResult.emit(res);
     });
   }
 }

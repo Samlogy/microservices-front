@@ -1,6 +1,14 @@
 import productType from './product.model';
 
-export default interface cartType {
+export interface cartType {
   id: number | undefined;
   products: productType[];
+}
+
+export interface priceSummaryType {
+  price: number;
+  discount: number;
+  tax: number;
+  delivery: number;
+  total: number;
 }

@@ -1,6 +1,6 @@
 <div>
   <h3>Products</h3>
-  <app-filter></app-filter>
+  <app-filter (searchResult)="onFilterProducts($event)"></app-filter>
 
   <div class="container row g-3 align-items-center">
     <div *ngFor="let product of productsList">
@@ -8,5 +8,9 @@
     </div>
   </div>
 
-  <app-pagination></app-pagination>
+  <app-pagination
+    [totalPages]="totalPages"
+    [currentPage]="currentPage"
+  ></app-pagination>
+  <!-- (changePage)="onChangePage($event)" -->
 </div>

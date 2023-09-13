@@ -5,4 +5,5 @@ export default interface productType {
   image: string;
   description: string;
   quantity: number;
+  category: string;
 }

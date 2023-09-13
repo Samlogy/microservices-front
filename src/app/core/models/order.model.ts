@@ -1,17 +1,20 @@
+import productType from './product.model';
+
 export interface orderType {
-  id?: number;
-  status: string;
+  id?: number | undefined;
+  status?: string;
   totalPrice: number;
-  orderDate: string;
+  orderDate?: string;
+  products: productType[];
   userId: number;
-  orders: orderDetailsType[] | [];
 }
 
-export interface orderDetailsType {
-  id: number;
-  quantity: number;
-  price: number;
-  name: string;
-  productId: number;
-  orderId: number;
-}
+// export interface orderDetailsType {
+//   id: number;
+//   quantity: number;
+//   price: number;
+//   name: string;
+//   productId: number;
+//   orderId: number;
+//   status?: string;
+// }

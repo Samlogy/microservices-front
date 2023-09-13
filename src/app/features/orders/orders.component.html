@@ -4,27 +4,39 @@
     <thead>
       <tr>
         <th scope="col">#</th>
-        <th scope="col">Name</th>
-        <th scope="col">Price</th>
-        <th scope="col">Quantity</th>
+        <th scope="col">Date</th>
         <th scope="col">Status</th>
         <th scope="col">Total Price</th>
+        <th scope="col">Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let order of ordersList.orders">
-        <th scope="row">{{ order.orderId }}</th>
-        <td>{{ order.name }}</td>
-        <td>{{ order.price }}</td>
-        <td>{{ order.quantity }}</td>
-
-        <td>{{ ordersList.status }}</td>
-        <td>{{ ordersList.totalPrice }}</td>
+      <tr *ngFor="let order of ordersList">
+        <th scope="row">{{ order.id }}</th>
+        <td>{{ order.orderDate }}</td>
+        <td>{{ order.status }}</td>
+        <td>{{ order.totalPrice }}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="confirmOrder(order)"
+          >
+            Confirm Order
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            (click)="cancelOrder(order.id)"
+          >
+            Cancel Order
+          </button>
+        </td>
       </tr>
     </tbody>
   </table>
-  <p>Total Price: {{ ordersList.totalPrice }}</p>
-  <button type="button" class="btn btn-primary" (click)="makeOrder()">
-    Confirm Order
+  <p>Total Price: {{ totalPrice }}</p>
+  <button type="button" class="btn btn-primary" (click)="confirmAllOrders()">
+    Confirm All Orders
   </button>
 </div>
