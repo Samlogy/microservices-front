@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" [routerLink]="['/products']">Logo</a>
+    <a class="navbar-brand" [routerLink]="['/']">Logo</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -15,10 +15,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a
-            class="nav-link"
-            routerLinkActive="active"
-            [routerLink]="['/products']"
+          <a class="nav-link" routerLinkActive="active" [routerLink]="['/']"
             >Products</a
           >
         </li>
@@ -50,28 +47,7 @@
           role="group"
           aria-label="auth-buttons"
         >
-          <button
-            type="button"
-            *ngIf="!isLogged"
-            class="btn btn-outline-secondary"
-            (click)="onRegister()"
-          >
-            Register
-          </button>
-          <button
-            type="button"
-            *ngIf="!isLogged"
-            class="btn btn-secondary"
-            (click)="onLogin()"
-          >
-            Login
-          </button>
-          <button
-            type="button"
-            *ngIf="isLogged"
-            class="btn btn-secondary"
-            (click)="onLogout()"
-          >
+          <button type="button" class="btn btn-secondary" (click)="onLogout()">
             Logout
           </button>
         </div>

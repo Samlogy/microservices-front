@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { StorageService } from '../../services/storage/storage.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,17 +10,28 @@ import { Router } from '@angular/router';
 export class NavbarComponent implements OnInit {
   isLogged = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private oauthService: OAuthService,
+
+    private storageService: StorageService
+  ) {
+    // this.oauthService.events
+    //   .pipe(filter((e) => e.type === 'token_received'))
+    //   .subscribe((_) => {
+    //     // @ts-ignore
+    //     this.name = this.oauthService.getIdentityClaims()['name'];
+    //   });
+    // if (this.oauthService.hasValidIdToken()) {
+    //   // @ts-ignore
+    //   this.name = this.oauthService.getIdentityClaims()['name'];
+    // }
+  }
 
   ngOnInit(): void {}
 
   onLogout() {
-    this.router.navigate(['/']);
-  }
-  onLogin() {
-    this.router.navigate(['/']);
-  }
-  onRegister() {
-    this.router.navigate(['/register']);
+    // logout (keycloak) + remove user data (storage)
+    this.oauthService.logOut();
+    this.storageService.onRemoveItem('auth-user');
   }
 }

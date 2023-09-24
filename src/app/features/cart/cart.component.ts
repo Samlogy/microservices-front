@@ -100,6 +100,6 @@ export class CartComponent implements OnInit {
     this.router.navigate(['/shipping']);
   }
   onCancel() {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/']);
   }
 }

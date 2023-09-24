@@ -79,6 +79,6 @@ export class ShippingComponent implements OnInit {
     );
   }
   onCancel() {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/']);
   }
 }

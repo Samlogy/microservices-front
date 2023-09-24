@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { FilterComponent } from './core/components/filter/filter.component';
 import { NavbarComponent } from './core/components/navbar/navbar.component';
@@ -16,6 +17,7 @@ import { OrdersComponent } from './features/orders/orders.component';
 import { ProductDetailsComponent } from './features/product-details/product-details.component';
 import { ProductsComponent } from './features/products/products.component';
 import { ShippingComponent } from './features/shipping/shipping.component';
+import { AuthGuard } from './core/guards/auth/auth.guard';
 
 const PAGES = [
   ShippingComponent,
@@ -40,8 +42,9 @@ const COMPONENTS = [
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    OAuthModule.forRoot(),
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

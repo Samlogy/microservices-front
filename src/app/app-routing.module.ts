@@ -7,15 +7,12 @@ import { OrdersComponent } from './features/orders/orders.component';
 import { ProductDetailsComponent } from './features/product-details/product-details.component';
 import { ProductsComponent } from './features/products/products.component';
 import { ShippingComponent } from './features/shipping/shipping.component';
+import { AuthGuard } from './core/guards/auth/auth.guard';
 
 const routes: Routes = [
   {
     component: ProductsComponent,
     path: '',
-  },
-  {
-    component: ProductsComponent,
-    path: 'products',
   },
   {
     component: ProductDetailsComponent,
@@ -24,10 +21,12 @@ const routes: Routes = [
   {
     component: ShippingComponent,
     path: 'shipping',
+    canActivate: [AuthGuard],
   },
   {
     component: OrdersComponent,
     path: 'orders',
+    canActivate: [AuthGuard],
   },
   {
     component: CartComponent,

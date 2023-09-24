@@ -1,5 +1,6 @@
 export default interface userType {
-  id: number | undefined;
+  id: number;
   fullName: string;
   email: string;
+  phone: string;
 }
