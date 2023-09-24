@@ -18,6 +18,7 @@ import { ProductDetailsComponent } from './features/product-details/product-deta
 import { ProductsComponent } from './features/products/products.component';
 import { ShippingComponent } from './features/shipping/shipping.component';
 import { AuthGuard } from './core/guards/auth/auth.guard';
+import { ProfileComponent } from './features/profile/profile.component';
 
 const PAGES = [
   ShippingComponent,
@@ -35,7 +36,7 @@ const COMPONENTS = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, ...PAGES, ...COMPONENTS],
+  declarations: [AppComponent, ...PAGES, ...COMPONENTS, ProfileComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
