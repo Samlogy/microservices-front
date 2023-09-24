@@ -1,0 +1,12 @@
+version: "2"
+services:
+  eco-ui:
+    container_name: eco-ui
+    image: sammmmmm/eco-ui:${TAG}
+    ports:
+      - "80:80"
+
+networks:
+  default:
+    external:
+      name: monolithic-app
