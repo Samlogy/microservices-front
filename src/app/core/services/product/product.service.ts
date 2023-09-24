@@ -17,7 +17,9 @@ export class ProductService {
     return this.http.get<productType>(BASE_URL + `/product/${id}`);
   }
   productList() {
-    return this.http.get<productsListType>(BASE_URL + '/product');
+    return this.http.get<productsListType>(BASE_URL + '/product', {
+      withCredentials: true,
+    });
   }
   searchProduct(query: string) {
     return this.http.get<productsListType>(BASE_URL + `/product?${query}`);
