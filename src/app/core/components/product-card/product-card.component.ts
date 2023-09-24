@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import productType from '../../models/product.model';
+import { productType } from '../../models/product.model';
 
 @Component({
   selector: 'app-product-card',
@@ -14,5 +14,7 @@ export class ProductCardComponent {
     price: 0,
     quantity: 10,
     image: '',
+    category: '',
+    userId: 1,
   };
 }

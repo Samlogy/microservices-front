@@ -1,8 +1,7 @@
-export default interface checkoutType {
+export default interface shippingType {
   email: string;
   address: string;
   contact: string;
-  totalPrice: number;
   userId: string;
   id: number | undefined;
 }

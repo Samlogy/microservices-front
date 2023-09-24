@@ -1,26 +1,25 @@
 import { HttpClient } from '@angular/common/http';
-import { EventEmitter, Injectable } from '@angular/core';
-import productType from '../../models/product.model';
+import { Injectable } from '@angular/core';
+import { productType, productsListType } from '../../models/product.model';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:8080';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  cartData = new EventEmitter<productType[] | []>();
   constructor(private http: HttpClient) {}
 
   addProduct(data: productType) {
-    return this.http.post(BASE_URL + '/products', data);
+    return this.http.post(BASE_URL + '/product', data);
+  }
+  getProductById(id: number) {
+    return this.http.get<productType>(BASE_URL + `/product/${id}`);
   }
   productList() {
-    return this.http.get<productType[]>(BASE_URL + '/products');
-  }
-  getProductById(id: string) {
-    return this.http.get<productType>(BASE_URL + `/products/${id}`);
+    return this.http.get<productsListType>(BASE_URL + '/product');
   }
   searchProduct(query: string) {
-    return this.http.get<productType[]>(BASE_URL + `/products?${query}`);
+    return this.http.get<productsListType>(BASE_URL + `/product?${query}`);
   }
 }

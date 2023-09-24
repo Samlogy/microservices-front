@@ -1,6 +1,6 @@
-import productType from './product.model';
+import { productType } from './product.model';
 
 export default interface cartType {
-  id: number | undefined;
+  id?: number;
   products: productType[];
 }

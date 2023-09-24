@@ -1,6 +1,13 @@
 <div>
   <h2>My Cart</h2>
 
+  <button
+    (click)="onEmptyCart()"
+    [ngClass]="{ disabled: isCartDoesNotExistsOrEmpty }"
+    class="btn btn-secondary"
+  >
+    Empty Cart
+  </button>
   <table class="table">
     <thead>
       <tr>
@@ -10,6 +17,7 @@
         <th scope="col">Quantity</th>
         <th scope="col">Price</th>
         <th scope="col">Total Price</th>
+        <th scope="col">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -20,6 +28,11 @@
         <td>{{ item.quantity }}</td>
         <td>{{ item.price }}</td>
         <td>{{ priceSummary.total }}</td>
+        <td>
+          <button (click)="onRemoveItem(item.id)" class="btn btn-secondary">
+            Delete
+          </button>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -47,6 +60,11 @@
       </li>
     </ul>
 
-    <button (click)="checkout()" class="btn btn-primary">Checkout</button>
+    <div class="flex">
+      <button (click)="onCancel()" class="btn btn-outline-secondary">
+        Cancel
+      </button>
+      <button (click)="onShipping()" class="btn btn-secondary">Shipping</button>
+    </div>
   </div>
 </div>

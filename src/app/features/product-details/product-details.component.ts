@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ProductService } from '../../core/services/product/product.service';
-import productType from 'src/app/core/models/product.model';
+import { ActivatedRoute, Router } from '@angular/router';
 import cartType from 'src/app/core/models/cart.model';
-import { CartService } from 'src/app/core/services/cart/cart.service';
+import { productType } from 'src/app/core/models/product.model';
+import { StorageService } from 'src/app/core/services/storage/storage.service';
+import { ProductService } from '../../core/services/product/product.service';
 
 @Component({
   selector: 'app-product-details',
@@ -18,99 +18,166 @@ export class ProductDetailsComponent implements OnInit {
     description: 'string',
     id: 1,
     quantity: 10,
+    category: 'Apple',
+    userId: 11,
   };
-  productQuantity: number = 1;
+  productQuantityAvailable: number = 3;
+  productSelectedQuantity = 1;
   removeCart = true;
-  cartData: cartType[] | undefined;
+  cartData: cartType = {
+    id: 1,
+    products: [],
+  };
+
+  isCartExists = false;
+  isItemExists = false;
 
   constructor(
     private activeRoute: ActivatedRoute,
     private productService: ProductService,
-    private cartService: CartService
+    private storageService: StorageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     let productId = this.activeRoute.snapshot.paramMap.get('id');
     if (!productId) return;
-    // this.loadProductDetails(Number(productId));
-  }
-  handleQuantity(val: string) {
-    if (this.productQuantity < 20 && val === 'plus') {
-      this.productQuantity += 1;
-    } else if (this.productQuantity > 1 && val === 'min') {
-      this.productQuantity -= 1;
-    }
+    // this.onLoadProductDetails(Number(productId));
+    this.onLoadCart();
+
+    this.isCartExists = this.onCartExists();
+    this.isItemExists = this.onItemExists();
+    // console.log(this.isCartExists, this.isItemExists);
   }
 
-  loadProductDetails(productId: number) {
-    // this.productService.getProductById(productId).subscribe((result) => {
-    //   this.productData = result;
-    //   let cartData = localStorage.getItem('localCart');
-    //   if (productId && cartData) {
-    //     let items = JSON.parse(cartData);
-    //     items = items.filter(
-    //       (item: productType) => productId === item.id
-    //     );
-    //     if (items.length) {
-    //       this.removeCart = true;
-    //     } else {
-    //       this.removeCart = false;
-    //     }
-    //   }
-    //   let user = localStorage.getItem('user');
-    //   if (user) {
-    //     let userId = user && JSON.parse(user).id;
-    //     this.cartService.getCartList(userId);
-    //     this.cartService.cartData.subscribe((result) => {
-    //       let item = result.filter(
-    //         (item: productType) =>
-    //           productId?.toString() === item.productId?.toString()
-    //       );
-    //       if (item.length) {
-    //         this.cartData = item[0];
-    //         this.removeCart = true;
-    //       }
-    //     });
-    //   }
-    // });
+  onItemExists() {
+    if (!this.isCartExists) return false;
+
+    const cart = this.cartData;
+    if (!cart || cart.products.length == 0) return false;
+
+    const itemExists = cart.products.find(
+      (item: productType) => item.id === this.productData.id
+    );
+    if (itemExists) return true;
+    return false;
   }
-  addToCart() {
-    // if (!this.productData) return;
-    // this.productData.quantity = this.productQuantity;
-    // if (!localStorage.getItem('user')) {
-    //   this.cartService.localAddToCart(this.productData);
-    //   this.removeCart = true;
-    //   return;
-    // }
-    // let user = localStorage.getItem('user');
-    // let userId = user && JSON.parse(user).id;
-    // let cartData: cartType = {
-    //   ...this.productData,
-    //   productId: this.productData.id,
-    //   userId,
-    // };
-    // delete cartData.id;
-    // this.cartService.addToCart(cartData).subscribe((result) => {
-    //   if (result) {
-    //     this.cartService.getCartList(userId);
-    //     this.removeCart = true;
-    //   }
-    // });
+  onCartExists() {
+    return this.cartData ? true : false;
   }
-  removeToCart(productId: number) {
-    // if (!localStorage.getItem('user')) {
-    //   this.cartService.removeItemFromCart(productId);
-    //   this.removeCart = false;
-    //   return;
-    // }
-    // console.warn('cartData', this.cartData);
-    // if (this.cartData) {
-    //   this.cartService.removeToCart(this.cartData.id).subscribe((result) => {
-    //     let user = localStorage.getItem('user');
-    //     let userId = user && JSON.parse(user).id;
-    //     this.cartService.getCartList(userId);
-    //   });
-    // }
-    // this.removeCart = false;
+
+  handleQuantity(val: string) {
+    if (
+      this.productSelectedQuantity <= this.productQuantityAvailable &&
+      val === 'plus'
+    )
+      this.onIncrement();
+    else if (this.productSelectedQuantity > 1 && val === 'min')
+      this.onDecrement();
+  }
+
+  onLoadProductDetails(productId: number) {
+    this.productService.getProductById(productId).subscribe((res) => {
+      this.productData = res;
+      this.productQuantityAvailable = res.quantity;
+    });
+  }
+  onLoadCart() {
+    this.cartData = this.storageService.onGetItem('cart');
+  }
+  onAddToCart() {
+    if (!this.productData.id) return;
+
+    const cart = this.storageService.onGetItem('cart');
+    this.cartData = cart;
+
+    if (!cart) this.onInitCart();
+
+    const itemExists = cart.products.find(
+      (item: productType) => item.id === this.productData.id
+    );
+
+    !itemExists ? this.onAddNewItem() : this.onIncrement();
+  }
+  onRemoveFromCart(productId: number) {
+    const cart = this.storageService.onGetItem('cart');
+    if (!cart) return;
+
+    const productListUpdated = cart.products.filter(
+      (item: productType) => item.id !== productId
+    );
+
+    this.storageService.onSaveItem('cart', {
+      id: productId,
+      products: productListUpdated,
+    });
+    this.productSelectedQuantity = 1;
+    console.log('remove item from cart: ', cart);
+  }
+  onIncrement() {
+    const updatedList = this.cartData.products.map((item: productType) => {
+      if (item.id == this.productData.id)
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      return item;
+    });
+    this.storageService.onSaveItem('cart', {
+      id: this.productData.id,
+      products: updatedList,
+    });
+    this.productSelectedQuantity++;
+
+    console.log('increment existing item: ');
+  }
+  onDecrement() {
+    const updatedList = this.cartData.products.map((item: productType) => {
+      if (item.id == this.productData.id)
+        return {
+          ...item,
+          quantity: item.quantity - 1,
+        };
+      return item;
+    });
+    this.storageService.onSaveItem('cart', {
+      id: this.productData.id,
+      products: updatedList,
+    });
+    this.productSelectedQuantity--;
+
+    console.log('decrement existing item: ');
+  }
+  onAddNewItem() {
+    const newProductList = [
+      ...this.cartData.products,
+      {
+        ...this.productData,
+        quantity: this.productSelectedQuantity,
+      },
+    ];
+    this.storageService.onSaveItem('cart', {
+      id: this.productData.id,
+      products: newProductList,
+    });
+
+    console.log('cart exists --> add new item: ');
+    return;
+  }
+  onInitCart() {
+    this.storageService.onSaveItem('cart', {
+      id: this.productData.id,
+      products: [
+        { ...this.productData, quantity: this.productSelectedQuantity },
+      ],
+    });
+
+    console.log('cart does not exists --> create cart + add new item ');
+    return;
+  }
+
+  onBuyNow() {
+    this.onAddToCart();
+    this.router.navigate(['/cart']);
   }
 }

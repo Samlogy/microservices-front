@@ -1,11 +1,18 @@
-<a href="{{ '/product/' + productData.id }}">
-  <div class="card" style="width: 18rem">
-    <img src="{{ productData.image }}" class="card-img-top" alt="..." />
+<a [routerLink]="['/product/' + productData.id]">
+  <div class="card m-2" style="width: 18rem">
+    <img
+      src="{{ productData.image }}"
+      class="card-img-top"
+      alt="{{ 'product ' + productData.name }}"
+    />
     <div class="card-body">
       <h5 class="card-title">{{ productData.name }}</h5>
 
       <p class="card-text">
         {{ productData.description }}
+      </p>
+      <p class="card-text">
+        {{ productData.category }}
       </p>
       <p class="card-text">Quanitty: {{ productData.quantity }}</p>
       <p class="card-text">

@@ -1,19 +1,35 @@
-<nav aria-label="">
+<nav aria-label="" class="d-flex justify-content-center mt-5">
   <ul class="pagination">
-    <li class="page-item disabled">
-      <button class="page-link" (click)="previousPage()">Previous</button>
+    <li class="page-item">
+      <button
+        class="page-link"
+        [ngClass]="{ disabled: currentPage == 1 }"
+        (click)="onPreviousPage()"
+      >
+        Previous
+      </button>
     </li>
 
-    <div *ngFor="let page of totalPages">
-      <li class="page-item active">
-        <button class="page-link" (click)="changePage(page)">
+    <div *ngFor="let page of subArrPages">
+      <li class="page-item">
+        <button
+          class="page-link"
+          [ngClass]="{ active: page == currentPage }"
+          (click)="onChangePage(page)"
+        >
           {{ page }}
         </button>
       </li>
     </div>
 
     <li class="page-item">
-      <button class="page-link" (click)="nextPage()">Next</button>
+      <button
+        class="page-link"
+        [ngClass]="{ disabled: currentPage == totalPages }"
+        (click)="onNextPage()"
+      >
+        Next
+      </button>
     </li>
   </ul>
 </nav>

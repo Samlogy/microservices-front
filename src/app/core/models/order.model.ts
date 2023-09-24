@@ -1,17 +1,18 @@
+import { productType } from './product.model';
+
 export interface orderType {
   id?: number;
   status: string;
   totalPrice: number;
   orderDate: string;
   userId: number;
-  orders: orderDetailsType[] | [];
+  products: productType[];
 }
 
-export interface orderDetailsType {
-  id: number;
-  quantity: number;
+export interface priceSummaryType {
   price: number;
-  name: string;
-  productId: number;
-  orderId: number;
+  discount: number;
+  tax: number;
+  delivery: number;
+  total: number;
 }

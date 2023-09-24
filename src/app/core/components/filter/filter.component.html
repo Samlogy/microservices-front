@@ -1,11 +1,47 @@
-<div class="container row g-3 align-items-center">
-  <form [formGroup]="searchForm" (ngSubmit)="onFilter()">
+<div class="mb-2 mx-auto">
+  <form
+    [formGroup]="searchForm"
+    (ngSubmit)="onFilter()"
+    class="d-flex align-items-stretch"
+  >
     <input
       class="form-control"
       type="text"
-      placeholder="search"
-      formControlName="searchBar"
+      placeholder="Product Name"
+      formControlName="name"
     />
-    <button type="submit" class="btn btn-primary">Search</button>
+
+    <select
+      class="form-select"
+      formControlName="category"
+      aria-label="Default select example"
+    >
+      <option [value]="category.value" *ngFor="let category of CATEGORIES">
+        {{ category.label }}
+      </option>
+    </select>
+
+    <select
+      class="form-select"
+      formControlName="sort_order"
+      aria-label="Default select example"
+    >
+      <option [value]="order" *ngFor="let order of SORT_ORDER">
+        {{ order }}
+      </option>
+    </select>
+    <input
+      class="form-control"
+      type="number"
+      formControlName="priceMin"
+      placeholder="Price Min"
+    />
+    <input
+      class="form-control"
+      type="number"
+      formControlName="priceMax"
+      placeholder="Price Max"
+    />
+    <button type="submit" class="btn btn-secondary">Search</button>
   </form>
 </div>

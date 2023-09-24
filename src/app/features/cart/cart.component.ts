@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CartService } from 'src/app/core/services/cart/cart.service';
-import { priceSummaryType } from '../../core/data-types';
+import { priceSummaryType } from 'src/app/core/models/order.model';
+import { productType } from 'src/app/core/models/product.model';
+import { StorageService } from 'src/app/core/services/storage/storage.service';
 import cartType from '../../core/models/cart.model';
 
 @Component({
@@ -10,60 +11,95 @@ import cartType from '../../core/models/cart.model';
   styleUrls: ['./cart.component.scss'],
 })
 export class CartComponent implements OnInit {
-  cartData: cartType = {
-    id: 1,
-    products: [
-      {
-        id: 1,
-        name: 'prod 1',
-        price: 10,
-        image: '',
-        description: 'desc',
-        quantity: 3,
-      },
-    ],
-  };
-  priceSummary: priceSummaryType = {
+  INIT_PRICE_SUMMARY = {
     price: 0,
     discount: 0,
     tax: 0,
     delivery: 0,
     total: 0,
   };
+  INIT_CART = {
+    id: 0,
+    products: [
+      {
+        id: 0,
+        name: '',
+        price: 0,
+        image: '',
+        description: '',
+        quantity: 0,
+        category: '',
+        userId: 0,
+      },
+    ],
+  };
 
-  constructor(private router: Router, private cartService: CartService) {}
+  cartData: cartType = this.INIT_CART;
+  priceSummary: priceSummaryType = this.INIT_PRICE_SUMMARY;
+  isCartDoesNotExistsOrEmpty = false;
+
+  constructor(private router: Router, private storageService: StorageService) {}
 
   ngOnInit(): void {
-    this.loadDetails();
+    this.onLoadDetails();
   }
 
-  removeToCart(cartId: number | undefined) {
-    if (!cartId || !this.cartData) return;
-    this.cartService.removeToCart(cartId).subscribe((result) => {
-      this.loadDetails();
+  onLoadDetails() {
+    const cart = this.storageService.onGetItem('cart');
+
+    this.isCartDoesNotExistsOrEmpty =
+      !cart || cart.products.length == 0 ? true : false;
+
+    if (!cart) return;
+    this.cartData = cart;
+
+    let price = 0;
+    cart.products.forEach((item: any) => {
+      price += item.price * item.quantity;
     });
-  }
 
-  loadDetails() {
-    this.cartService.currentCart().subscribe((result) => {
-      this.cartData = result;
-      let price = 0;
-      result.products.forEach((item: any) => {
-        if (item.quantity) {
-          price += item.price * item.quantity;
-        }
-      });
-      console.log('price: ', price);
-      this.priceSummary.price = price;
-      this.priceSummary.discount = price * 0.1;
-      this.priceSummary.tax = price * 0.1;
-      this.priceSummary.delivery = 100;
-      this.priceSummary.total = price + price * 0.1 + 100 - price * 0.1;
-      if (this.cartData.products?.length == 0) this.router.navigate(['/']);
+    if (price === 0) {
+      this.priceSummary = this.INIT_PRICE_SUMMARY;
+      return;
+    }
+
+    const discount = price * 0.1;
+    const tax = price * 0.1;
+    const delivery = 100;
+
+    this.priceSummary.price = price;
+    this.priceSummary.discount = discount;
+    this.priceSummary.tax = tax;
+    this.priceSummary.delivery = delivery;
+    this.priceSummary.total = price + tax + delivery - discount;
+  }
+  onRemoveItem(itemId: number | undefined) {
+    if (!itemId || !this.cartData) return;
+    const updateProducts = this.cartData.products.filter(
+      (item: productType) => item.id !== itemId
+    );
+    this.cartData = {
+      id: this.cartData.id,
+      products: updateProducts,
+    };
+    this.storageService.onSaveItem('cart', {
+      id: this.cartData.id,
+      products: updateProducts,
     });
+    this.onLoadDetails();
+  }
+  onEmptyCart() {
+    this.storageService.onSaveItem('cart', {
+      id: this.cartData.id,
+      products: [],
+    });
+    this.onLoadDetails();
   }
 
-  checkout() {
-    this.router.navigate(['/checkout']);
+  onShipping() {
+    this.router.navigate(['/shipping']);
+  }
+  onCancel() {
+    this.router.navigate(['/products']);
   }
 }

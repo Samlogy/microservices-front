@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { orderType } from '../../core/models/order.model';
-import { ProductService } from '../../core/services/product/product.service';
+import { productType } from 'src/app/core/models/product.model';
 import { OrderService } from 'src/app/core/services/order/order.service';
+import { StorageService } from 'src/app/core/services/storage/storage.service';
+import Swal from 'sweetalert2';
+import { orderType } from '../../core/models/order.model';
 
 @Component({
   selector: 'app-orders',
@@ -9,67 +11,166 @@ import { OrderService } from 'src/app/core/services/order/order.service';
   styleUrls: ['./orders.component.scss'],
 })
 export class OrdersComponent implements OnInit {
-  ordersList: orderType = {
-    id: 1,
-    status: 'pending',
-    totalPrice: 100.0,
-    orderDate: '10-09-2023',
-    userId: 1,
-    orders: [
-      {
-        id: 1,
-        quantity: 3,
-        price: 10,
-        name: 'Item 1',
-        productId: 1,
-        orderId: 1,
-      },
-      {
-        id: 2,
-        quantity: 3,
-        price: 10,
-        name: 'Item 2',
-        productId: 2,
-        orderId: 1,
-      },
-      {
-        id: 3,
-        quantity: 3,
-        price: 10,
-        name: 'Item 3',
-        productId: 3,
-        orderId: 1,
-      },
-      {
-        id: 4,
-        quantity: 3,
-        price: 10,
-        name: 'Item 4',
-        productId: 4,
-        orderId: 2,
-      },
-    ],
-  };
+  ordersList: orderType[] = [];
+  user: any;
+  totalPrice = 0;
+  apiLoading = false;
 
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private orderService: OrderService,
+    private storageService: StorageService
+  ) {}
 
   ngOnInit(): void {
-    this.getOrderList();
+    this.onLoadUser();
+    this.onLoadOrders();
+    this.onComputeTotalPrice();
   }
-  cancelOrder(orderId: number | undefined) {
-    if (!orderId) return;
-    this.orderService.cancelOrder(orderId).subscribe((result) => {
-      if (result) this.getOrderList();
-    });
-  }
-  getOrderList() {
+
+  onLoadOrders() {
     this.orderService.orderList().subscribe((result) => {
-      this.ordersList = result;
+      const cart = this.storageService.onGetItem('cart');
+      if (!cart) return;
+
+      let totalPrice = 0;
+      cart.products.forEach(
+        (item: productType) => (totalPrice = item.quantity * item.price)
+      );
+      const newOrder = {
+        status: 'pending',
+        totalPrice,
+        orderDate: new Date().toISOString(),
+        userId: this.user.id,
+        products: cart.products,
+      };
+
+      this.ordersList = [newOrder, ...result];
     });
   }
-  makeOrder() {
-    // call api to make order
-    // displau popup error / success
+  onConfirmOrder(orderId: number | undefined) {
+    this.orderService.confirmOrder(orderId).subscribe(
+      (result) => {
+        this.apiLoading = false;
+
+        this.onLoadOrders();
+        this.storageService.onSaveItem('cart', {
+          id: undefined,
+          products: [],
+        });
+
+        Swal.fire({
+          title: 'Succés',
+          text: 'Order has been confirmed',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      },
+      (err) => {
+        this.apiLoading = false;
+        Swal.fire({
+          title: 'Erreur!',
+          text: err.error.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    );
   }
-  calculateTotal() {}
+  onConfirmAllOrders() {
+    const orderIds = this.ordersList.map((order: orderType) => order.id);
+    this.orderService.confirmAllOrders(orderIds).subscribe(
+      (result) => {
+        this.apiLoading = false;
+
+        this.onLoadOrders();
+        this.storageService.onSaveItem('cart', {
+          id: undefined,
+          products: [],
+        });
+
+        Swal.fire({
+          title: 'Succés',
+          text: 'Orders have been confirmed',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      },
+      (err) => {
+        this.apiLoading = false;
+        Swal.fire({
+          title: 'Erreur!',
+          text: err.error.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    );
+  }
+  onCancelAllOrders() {
+    const orderIds = this.ordersList.map((order: orderType) => order.id);
+    this.orderService.cancelAllOrders(orderIds).subscribe(
+      (result) => {
+        this.apiLoading = false;
+
+        this.onLoadOrders();
+        this.storageService.onSaveItem('cart', {
+          id: undefined,
+          products: [],
+        });
+
+        Swal.fire({
+          title: 'Succés',
+          text: 'Orders have been canceled',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      },
+      (err) => {
+        this.apiLoading = false;
+        Swal.fire({
+          title: 'Erreur!',
+          text: err.error.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    );
+  }
+  onCancelOrder(orderId: number | undefined) {
+    this.orderService.cancelOrder(orderId).subscribe(
+      (result) => {
+        this.apiLoading = false;
+
+        this.onLoadOrders();
+        this.storageService.onSaveItem('cart', {
+          id: undefined,
+          products: [],
+        });
+
+        Swal.fire({
+          title: 'Succés',
+          text: 'Order has been canceled',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      },
+      (err) => {
+        this.apiLoading = false;
+        Swal.fire({
+          title: 'Erreur!',
+          text: err.error.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    );
+  }
+  onLoadUser() {
+    this.user = this.storageService.onGetItem('user');
+  }
+  onComputeTotalPrice() {
+    this.ordersList.forEach(
+      (item: orderType) => (this.totalPrice += item.totalPrice)
+    );
+  }
 }

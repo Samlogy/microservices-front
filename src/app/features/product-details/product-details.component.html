@@ -7,24 +7,38 @@
       <h1>{{ productData.name }}</h1>
       <h3>Price : {{ productData.price }}</h3>
       <h6>Description : {{ productData.description }}</h6>
-      <button *ngIf="!removeCart" class="form-button" (click)="addToCart()">
+      <button class="btn btn-secondary" (click)="onAddToCart()">
         Add to Cart
       </button>
 
-      <button
-        *ngIf="removeCart"
-        class="form-button"
-        (click)="removeToCart(productData.id)"
-      >
-        Remove to Cart
-      </button>
-
-      <button class="form-button">Buy Now</button>
-
       <div class="quantity-group">
-        <button (click)="handleQuantity('min')">-</button>
-        <input type="text" value="{{ productQuantity }}" />
-        <button (click)="handleQuantity('plus')">+</button>
+        <button
+          class="btn btn-secondary"
+          *ngIf="isCartExists"
+          (click)="handleQuantity('min')"
+        >
+          -
+        </button>
+        <input type="text" value="{{ productSelectedQuantity }}" />
+        <button
+          class="btn btn-secondary"
+          *ngIf="isCartExists"
+          (click)="handleQuantity('plus')"
+        >
+          +
+        </button>
+      </div>
+
+      <div class="d-flex">
+        <button
+          class="btn btn-secondary"
+          *ngIf="isCartExists && isItemExists"
+          (click)="onRemoveFromCart(productData.id)"
+        >
+          Remove From Cart
+        </button>
+
+        <button class="btn btn-secondary" (click)="onBuyNow()">Buy Now</button>
       </div>
     </div>
   </div>
