@@ -8,6 +8,7 @@ import { ProductDetailsComponent } from './features/product-details/product-deta
 import { ProductsComponent } from './features/products/products.component';
 import { ShippingComponent } from './features/shipping/shipping.component';
 import { AuthGuard } from './core/guards/auth/auth.guard';
+import { ProfileComponent } from './features/profile/profile.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,11 @@ const routes: Routes = [
   {
     component: CartComponent,
     path: 'cart',
+    canActivate: [AuthGuard],
+  },
+  {
+    component: ProfileComponent,
+    path: 'profile',
   },
   {
     component: NotFoundComponent,
