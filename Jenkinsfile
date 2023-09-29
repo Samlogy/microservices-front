@@ -1,4 +1,4 @@
-node("ci-node") {
+// node("ci-node") {
 
   def branchName = env.BRANCH_NAME
   def instancesNumber = 2;
@@ -58,4 +58,4 @@ node("ci-node") {
       }
     }
   }
-}
+// }
