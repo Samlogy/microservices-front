@@ -24,8 +24,9 @@ pipeline {
                 expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' }
             }
             steps {
-               sh "npm install"
-               sh "npm run build"
+               // sh "npm install"
+               // sh "npm run build"
+              echo 'build app'
             }
         }
 
@@ -34,7 +35,8 @@ pipeline {
                 expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' }
             }
             steps {
-               sh "sudo docker build -t eco-ui ."
+               // sh "sudo docker build -t eco-ui ."
+              echo 'build docker image'
             }
         }
 
@@ -43,16 +45,16 @@ pipeline {
                 expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' }
             }
             steps {
-                // Push the Docker image to Docker Hub
-              withCredentials([usernamePassword(credentialsId: 'sam', usernameVariable: 'username',
-                passwordVariable: 'password')]) {
-                sh "sudo docker login -u sammmmmm -p $password"
-                sh "sudo docker tag eco-ui sammmmmm/eco-ui:$branchName"
-                sh "sudo docker push sammmmmm/eco-ui:$branchName"
-                sh "sudo docker rmi sammmmmm/eco-ui:$branchName"
-                sh "sudo docker rmi eco-ui"
-                stash includes: 'docker-compose.yml', name: 'utils'
-              }
+              // withCredentials([usernamePassword(credentialsId: 'sam', usernameVariable: 'username',
+              //   passwordVariable: 'password')]) {
+              //   sh "sudo docker login -u sammmmmm -p $password"
+              //   sh "sudo docker tag eco-ui sammmmmm/eco-ui:$branchName"
+              //   sh "sudo docker push sammmmmm/eco-ui:$branchName"
+              //   sh "sudo docker rmi sammmmmm/eco-ui:$branchName"
+              //   sh "sudo docker rmi eco-ui"
+              //   stash includes: 'docker-compose.yml', name: 'utils'
+              // }
+              echo 'push docker image to registery'
             }
         }
 
@@ -61,18 +63,19 @@ pipeline {
                 expression { env.BRANCH_NAME == 'master' }
             }
             steps {
-               unstash 'utils'
-              sh "echo TAG=$branchName > .env"
-              try {
-                sh "sudo docker-compose down"
-                sh "sudo docker-compose pull"
-                sh "sudo docker-compose up -d"
+              //  unstash 'utils'
+              // sh "echo TAG=$branchName > .env"
+              // try {
+              //   sh "sudo docker-compose down"
+              //   sh "sudo docker-compose pull"
+              //   sh "sudo docker-compose up -d"
       
-              } catch (Exception e) {
-                println "No Docker Compose Running"
-                sh "sudo docker-compose pull"
-                sh "sudo docker-compose up -d"
-              }
+              // } catch (Exception e) {
+              //   println "No Docker Compose Running"
+              //   sh "sudo docker-compose pull"
+              //   sh "sudo docker-compose up -d"
+              // }
+              echo 'deploy app'
             }
         }
     }
