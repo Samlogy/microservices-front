@@ -6,7 +6,7 @@ pipeline {
             steps {
                 // Checkout code from the GitHub repository
                 script {
-                    if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master') {
+                    if (env.BRANCH_NAME == 'develop' ) {
                         checkout([$class: 'GitSCM', 
                             branches: [[name: env.BRANCH_NAME]], 
                             doGenerateSubmoduleConfigurations: false, 
@@ -21,40 +21,37 @@ pipeline {
 
         stage('Build') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' }
+                expression { env.BRANCH_NAME == 'develop' }
             }
             steps {
-               // sh "npm install"
-               // sh "npm run build"
-              echo 'build app'
+               sh "npm install"
+               sh "npm run build"
             }
         }
 
         stage('Docker Build') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' }
+                expression { env.BRANCH_NAME == 'develop'  }
             }
             steps {
-               // sh "sudo docker build -t eco-ui ."
-              echo 'build docker image'
+               sh "sudo docker build -t eco-ui ."
             }
         }
 
         stage('Push to Docker Hub') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' }
+                expression { env.BRANCH_NAME == 'develop'  }
             }
             steps {
-              // withCredentials([usernamePassword(credentialsId: 'sam', usernameVariable: 'username',
-              //   passwordVariable: 'password')]) {
-              //   sh "sudo docker login -u sammmmmm -p $password"
-              //   sh "sudo docker tag eco-ui sammmmmm/eco-ui:$branchName"
-              //   sh "sudo docker push sammmmmm/eco-ui:$branchName"
-              //   sh "sudo docker rmi sammmmmm/eco-ui:$branchName"
-              //   sh "sudo docker rmi eco-ui"
-              //   stash includes: 'docker-compose.yml', name: 'utils'
-              // }
-              echo 'push docker image to registery'
+              withCredentials([usernamePassword(credentialsId: 'sam', usernameVariable: 'username',
+                passwordVariable: 'password')]) {
+                sh "sudo docker login -u sammmmmm -p $password"
+                sh "sudo docker tag eco-ui sammmmmm/eco-ui:$branchName"
+                sh "sudo docker push sammmmmm/eco-ui:$branchName"
+                sh "sudo docker rmi sammmmmm/eco-ui:$branchName"
+                sh "sudo docker rmi eco-ui"
+                stash includes: 'docker-compose.yml', name: 'utils'
+              }
             }
         }
 
